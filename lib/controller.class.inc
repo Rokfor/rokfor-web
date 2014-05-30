@@ -110,10 +110,7 @@ class controller
 
 
 		/**
-		 * Create output depending on the controller state
-		 * No Controller: Print Start Template
-		 * Ajax Controller: Load ajax template based upon the template id sent by GET
-		 * Regular Controller: Load Template based upon the chapter id
+		 * Create output depending on the template
 		 */
 	
 		if (file_exists(template_path.'/element/'.$_GET['element'].'.phtml')) {
