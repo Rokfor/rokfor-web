@@ -269,12 +269,20 @@ class controller
 	 * @return void
 	 * @author Urs Hofer
 	 */
-	private function __render($_file)
+	private function __render($_file, $_parseonly)
 	{
 		// 1. Get all required fields out of the template
 		$_tpl = array();
 		if (!$_source = @file_get_contents(template_path.'/'.$_file))
 			throw new Exception("Template $_file not found", 1);
+		
+		// 2. Parse Includes
+
+		preg_match_all('/\<\?include\([\'|"](.*?)[\'|"]\)\?>/', $_source, $_incl);		
+		foreach (array_unique($_tpl[1]) as $_incl) {
+			$this->content($_incl, true);									
+		}		
+		
 		preg_match_all('/\<\?=\$(.*?)\?>/', $_source, $_tpl);
 		foreach (array_unique($_tpl[1]) as $_renderer) {
 			if (method_exists($this, $_renderer)) {
@@ -287,10 +295,11 @@ class controller
 			else $$_renderer = view_missing.":".$_renderer;
 		}
 
-
-	    ob_start();
-	    require template_path.'/'.$_file;
-	    $this->addHTML(ob_get_clean());	
+		if (!$_parseonly) {
+			ob_start();
+	    	require template_path.'/'.$_file;
+			$this->addHTML(ob_get_clean());	
+		}
 	}
 
 	/**
@@ -326,10 +335,10 @@ class controller
 	 * @return void
 	 * @author Urs Hofer
 	 **/
-	function content($_file)
+	function content($_file, $_parseonly = false)
 	{
 		try {
-			$this->__render($_file);
+			$this->__render($_file, $_parseonly);
 		} catch (Exception $e) {
 			$this->error($e->getMessage());
 		}
