@@ -1,21 +1,17 @@
-rokfor-web
-==========
+#rokfor-web
 
 A simple reference implementation of a Rokfor CMS web application.
 
-Prerequisites: A running rokfor installation. Check it out here: <a href="/Rokfor/rokfor-cms">Rokfor-cms</a>
+#Installation
 
-Installation
-============
-
+* Prerequisites: A running rokfor installation. Check it out here: <a href="/Rokfor/rokfor-cms">Rokfor-cms</a>
 * Clone the repository in the document root
 * Make sure, that the path to the Rokfor Configuration exists (rf_config-v2.inc in index.php)
+* If you don't change anything, the default paths should work.
 
-How does this work
-==================
+#How-To
 
-Parameters
-----------
+##Parameters
 
 This repository is a simple template engine. It accepts four GET parameters. In the constructor of controller.class.inc you see:
 
@@ -36,8 +32,8 @@ RewriteRule ^(.*)/(.*)/(.*)$ 		/index.php?book=$1&issue=$2&chapter=$3 [L]
 RewriteRule ^(.*)/(.*)/(.*)/(.*)$ 	/index.php?book=$1&issue=$2&chapter=$3&element=$4 [L]
 ```
 
-Templates
----------
+##Templates
+
 
 Templates reside in the templates folder. They are html, and you're totally free in designing whatever you want. The little magic is here:
 Whenever you write a snippet like this, make sure, that the function $dump_content in this example also exists in the view.class.inc file. 
@@ -55,8 +51,7 @@ You can include a template within a template:
 
 Like this, you can set the same footer for every page in one template.
 
-Data Structures
----------------
+###Data Structures
 
 When you design a function for a template, there are two main data structures holding the necessary data.
 
@@ -77,8 +72,8 @@ $this->chapter
 $this->element
 ```
 
-Loading other than current data
--------------------------------
+###Loading other than current data
+
 
 If you need other data than the current, for example in your footer, you can overload the active element data with an own id:
 
@@ -89,8 +84,8 @@ $current = $this->data['Textfield'];		// $current holds the content of the defau
 
 ```
 
-Javascript
-----------
+###Javascript
+
 
 If you need Java Script Code which should be executed, there's the helper function
 
@@ -104,7 +99,6 @@ The code will be added to a onReady Function at the end of the page. It's wrappe
 	function dump($echo = true) 
 	{
 		...
-			$this->addHTML('
 			<script type="text/javascript" charset="utf-8">
 			window.addEvent(\'domready\', function() {
 				'.join("\n",$this->domready).'
@@ -120,7 +114,6 @@ If you prefer jquery, you can change the code to:
 	function dump($echo = true) 
 	{
 		...
-			$this->addHTML('
 			<script type="text/javascript" charset="utf-8">
 			$( document ).ready(function() {
 				'.join("\n",$this->domready).'
@@ -130,9 +123,8 @@ If you prefer jquery, you can change the code to:
 		...
 ``` 
 
+###Example Function
 
-Example Function
-----------------
 
 Here's an example for a textfield:
 
