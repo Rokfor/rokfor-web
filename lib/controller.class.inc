@@ -106,7 +106,7 @@ class controller
 		$this->domready = array();
 		require_once(SYSDIR.'/rokfor_DB.inc');
 		$this->rfDB = new rokfor_DB();
-		
+
 		/* Load Default Selections */
 		
 		$this->_checkBook($_GET['book']);
@@ -115,6 +115,7 @@ class controller
 		$this->_checkElement($_GET['element']);		
 		$this->_loadData();
 
+
 		/**
 		 * Create output depending on the controller state
 		 * No Controller: Print Start Template
@@ -122,17 +123,12 @@ class controller
 		 * Regular Controller: Load Template based upon the chapter id
 		 */
 	
-		if (!$_GET['Controller']) {
-			$this->content('start.phtml');						
+		if (file_exists(template_path.'/chapters/'.$_GET['Controller'].'.phtml')) {
+			$this->content('/chapters/'.$_GET['Controller'].'.phtml');						
 		}
 		else {
-			if (file_exists(template_path.'/chapters/'.$_GET['Controller'].'.phtml')) {
-				$this->content('/chapters/'.$_GET['Controller'].'.phtml');						
-			}
-			else {
-				$this->warning('Template chapters/ch_'.$_chapter_id.'.phtml does not exist. Falling back to the default view.');
-				$this->content('default.phtml');			
-			}
+			$this->warning('Template does not exist. Falling back to the default view.');
+			$this->content('default.phtml');			
 		}
 	}
 	
@@ -155,6 +151,7 @@ class controller
 			}
 			if (!$_newid) $_newid = $_b;
 		}
+		if ($_book) $this->error("Book Id not found");
 		$this->book = $_newid;
 	}
 	
@@ -177,6 +174,7 @@ class controller
 			}
 			if (!$_newid) $_newid = $_e;			
 		}
+		if ($_issue) $this->error("Issue Id not found");
 		$this->issue = $_newid; 		
 	}
 	
@@ -199,6 +197,7 @@ class controller
 			}
 			if (!$_newid) $_newid = $_c;			
 		}
+		if ($_chapter) $this->error("Chapter Id not found");		
 		$this->chapter = $_newid; 		
 	}	
 	
@@ -221,6 +220,7 @@ class controller
 			}
 			if (!$_newid) $_newid = $_e;			
 		}
+		if ($_element) $this->error("Element Id not found");				
 		$this->element = $_newid; 		
 	}	
 	
