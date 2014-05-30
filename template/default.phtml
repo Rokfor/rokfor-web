@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Site</title>
-</head>
+<?include('sys/header.phtml')?>
 
-<body>
-
-<div id="navigation">
-	<?=$menu?>
-</div>
-
-<!--Begin Content here -->
 <div id="content">
-
-	<?=$dump_content?>
-
+	<p>
+		Data Structure $this->data<br>
+		Holding the data of the currently active template.<br>
+		This Data can be used to produce a page.
+	</p>
+	<?=$content?>
 </div>
-<!--End Content here -->
 
-</body>
-</html>
+<?include('sys/footer.phtml')?>
