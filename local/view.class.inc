@@ -35,7 +35,7 @@ class view extends controller
 	 * @return string
 	 * @author Urs Hofer
 	 */
-	function menu() {
+	function dump_menu() {
 		return ('<pre>'.print_r($this->tree,true).'</pre>');
 	}
 
