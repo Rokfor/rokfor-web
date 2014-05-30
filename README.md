@@ -35,7 +35,44 @@ RewriteRule ^(.*)/(.*)/(.*)/(.*)$ 	/index.php?book=$1&issue=$2&chapter=$3&elemen
 ##Templates
 
 
-Templates reside in the templates folder. They are html, and you're totally free in designing whatever you want. The little magic is here:
+Templates reside in the templates folder. They are html, and you're totally free in designing whatever you want. You can include subtemplates, do fancy javascript or css.
+If Rokfor cannot find a specific template, default.phtml will be used to render the content. If you need to, you can store different templates per book, issue, chapter or element. Templates are always names like the corresponding book, issue, chapter or element. The choice is stacked:
+
+For example: 
+
+* templates/chapter/Intro.phtml will always be used for elements within the chapter Intro.
+* templates/element/Demo.phtml will be used for the element named Demo, overruling Intro.phtml.
+* The hierarchy is: element -> chapter -> issue -> book -> default
+
+The hierarchy is set in the constructor of controller.class.inc:
+
+``` 
+/**
+* Create output depending on the template
+*/
+	
+if (file_exists(template_path.'/element/'.$_GET['element'].'.phtml')) {
+	$this->content('/elements/'.$_GET['element'].'.phtml');						
+}
+else if (file_exists(template_path.'/chapter/'.$_GET['chapter'].'.phtml')) {
+	$this->content('/chapters/'.$_GET['chapter'].'.phtml');						
+}
+else if (file_exists(template_path.'/issue/'.$_GET['issue'].'.phtml')) {
+	$this->content('/issue/'.$_GET['issue'].'.phtml');						
+}		
+else if (file_exists(template_path.'/book/'.$_GET['book'].'.phtml')) {
+	$this->content('/issue/'.$_GET['book'].'.phtml');						
+}				
+else {
+	$this->content('default.phtml');			
+}
+```
+
+
+
+###Data Access Functions
+
+The little magic is here:
 Whenever you write a snippet like this, make sure, that the function $dump_content in this example also exists in the view.class.inc file. 
 In the end, make sure, that your template function returns its result as a string. The string will be inserted in the template to make it complete.
 
