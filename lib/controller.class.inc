@@ -269,22 +269,34 @@ class controller
 	 * @return void
 	 * @author Urs Hofer
 	 */
-	private function __render($_file, $_parseonly)
+	private function __render($_file)
 	{
 		// 1. Get all required fields out of the template
-		$_tpl = array();
+		$_renderers = array();
 		if (!$_source = @file_get_contents(template_path.'/'.$_file))
 			throw new Exception("Template $_file not found", 1);
 		
 		// 2. Parse Includes
 
-		preg_match_all('/\<\?include\([\'|"](.*?)[\'|"]\)\?>/', $_source, $_incl);		
-		foreach (array_unique($_tpl[1]) as $_incl) {
-			$this->content($_incl, true);									
+		preg_match_all('/\<\?include\([\'|"](.*?)[\'|"]\)\?>/', $_source, $_includes);		
+		foreach (array_unique($_includes[1]) as $_incl) {
+			if (!$_include = @file_get_contents(template_path.'/'.$_incl))
+				throw new Exception("Include Template $_file not found", 1);									
+			$_tpl = array();
+			preg_match_all('/\<\?=\$(.*?)\?>/', $_include, $_tpl);
+			foreach (array_unique($_tpl[1]) as $_renderer) {
+				$_renderers[] = $_renderer;
+			}
 		}		
-		
+
+		$_tpl = array();		
 		preg_match_all('/\<\?=\$(.*?)\?>/', $_source, $_tpl);
 		foreach (array_unique($_tpl[1]) as $_renderer) {
+			$_renderers[] = $_renderer;
+		}
+		
+		
+		foreach ($_renderers as $_renderer) {
 			if (method_exists($this, $_renderer)) {
 				try {
 					$$_renderer = $this->$_renderer();
@@ -295,11 +307,9 @@ class controller
 			else $$_renderer = view_missing.":".$_renderer;
 		}
 
-		if (!$_parseonly) {
-			ob_start();
-	    	require template_path.'/'.$_file;
-			$this->addHTML(ob_get_clean());	
-		}
+		ob_start();
+    	require template_path.'/'.$_file;
+		$this->addHTML(ob_get_clean());	
 	}
 
 	/**
@@ -335,10 +345,10 @@ class controller
 	 * @return void
 	 * @author Urs Hofer
 	 **/
-	function content($_file, $_parseonly = false)
+	function content($_file)
 	{
 		try {
-			$this->__render($_file, $_parseonly);
+			$this->__render($_file);
 		} catch (Exception $e) {
 			$this->error($e->getMessage());
 		}
