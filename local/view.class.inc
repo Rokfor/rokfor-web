@@ -47,7 +47,7 @@ class view extends controller
  	 * @return void
 	 * @author Urs Hofer
 	 */
-	function content() 
+	function dump_content() 
 	{
 		return ('<pre>'.print_r($this->data,true).'</pre>');
 	}
