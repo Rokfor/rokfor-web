@@ -11,7 +11,6 @@
 */
 
 
-require_once('../rf_config-v2.inc');
 require_once('constants.local.inc');
 require_once('../lib/controller.class.inc');
 

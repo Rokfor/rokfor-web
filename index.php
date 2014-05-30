@@ -11,6 +11,7 @@
 	 */
 
 	chdir(dirname(__FILE__));
+	require_once('../rf_config-v2.inc');
 	require_once('local/view.class.inc');	
 
 	/**
