@@ -123,11 +123,19 @@ class controller
 		 * Regular Controller: Load Template based upon the chapter id
 		 */
 	
-		if (file_exists(template_path.'/chapters/'.$_GET['Controller'].'.phtml')) {
-			$this->content('/chapters/'.$_GET['Controller'].'.phtml');						
+		if (file_exists(template_path.'/elements/'.$_GET['element'].'.phtml')) {
+			$this->content('/elements/'.$_GET['element'].'.phtml');						
 		}
+		else if (file_exists(template_path.'/chapters/'.$_GET['chapter'].'.phtml')) {
+			$this->content('/chapters/'.$_GET['chapter'].'.phtml');						
+		}
+		else if (file_exists(template_path.'/issue/'.$_GET['issue'].'.phtml')) {
+			$this->content('/issue/'.$_GET['issue'].'.phtml');						
+		}		
+		else if (file_exists(template_path.'/book/'.$_GET['book'].'.phtml')) {
+			$this->content('/issue/'.$_GET['book'].'.phtml');						
+		}				
 		else {
-			$this->warning('Template does not exist. Falling back to the default view.');
 			$this->content('default.phtml');			
 		}
 	}
