@@ -11,8 +11,8 @@
 */
 
 
-require_once('constants.local.inc');
-require_once('../lib/controller.class.inc');
+require_once(dirname(__FILE__).'/constants.local.inc');
+require_once(dirname(__FILE__).'/../lib/controller.class.inc');
 
 class view extends controller
 {

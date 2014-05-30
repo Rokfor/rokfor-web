@@ -3,16 +3,14 @@
 	 * Initialize Session
 	 */
 
-	session_start();
 	ini_set('display_errors','Off');
 
 	/**
-	 * Load main Class
+	 * Include Libraries
 	 */
 
-	chdir(dirname(__FILE__));
-	require_once('../rf_config-v2.inc');
-	require_once('local/view.class.inc');	
+    require_once(dirname(__FILE__).'/../rf_config-v2.inc');
+    require_once(dirname(__FILE__).'/local/view.class.inc');	
 
 	/**
 	 * Load Main Class
@@ -21,7 +19,7 @@
 	$s = new view();
 
 	/**
-	 * Dump HTML and Ajax
+	 * Dump HTML
 	 */
 
 	$s->dump();
