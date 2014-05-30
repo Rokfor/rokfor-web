@@ -55,3 +55,13 @@ $this->data
 $this->data holds the loaded template. You can create a page with it.
 $this->tree holds the available books, the issues, the chapters and the elements of the current chapter. You can easily create a menu with it.
 
+In the end, make sure, that your template function returns its result as a string. The string will be inserted in the template to make it complete.
+Here's an example for a textfield:
+
+``` 
+function texfield() 
+{
+	$html = $this->data['Textfield'];				// Get the text value of the field "Textfield"
+	return ('<p class="content">'.$html.'</p>');	// Wrap it in a tag and return it.
+}
+```

@@ -248,7 +248,30 @@ class controller
 			if (!$this->element->id) $this->error("Element Id not set");
 			$_element = $this->element->id;
 		}
-		$this->data = $this->rfDB->getFieldsId($this->element->id);
+		foreach ($this->rfDB->getFieldsId($this->element->id) as $_fieldname => $_data) {
+			switch ($_data->_fieldtype) {
+				case 'Bild':
+					$_parsed_data=$this->rfDB->_splitTableData($_data->d_binary);
+					break;
+				case 'Tabelle':
+					$_parsed_data=$this->rfDB->_splitTableData($_data->d_text);
+					break;				
+				case 'Zahl':
+				case 'TypologySlider':
+					$_parsed_data=$_data->d_integer;
+					break;		
+				default:
+					if (stristr($_data->d_text, '<::::::>')) {
+						$_parsed_data =	$this->rfDB->_splitTextListData($_data->d_text);
+					}
+					else if (stristr($_data->d_text, '<;;;;;;>')) {
+						$_parsed_data =	$this->rfDB->_splitWordListData($_data->d_text);
+					}
+					else $_parsed_data = $_data->d_text;
+					break;
+			}
+			$this->data[$_fieldname] = $_parsed_data;
+		}
 	}	
 	
 

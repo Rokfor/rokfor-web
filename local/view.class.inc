@@ -39,8 +39,6 @@ class view extends controller
 		return ('<pre>'.print_r($this->tree,true).'</pre>');
 	}
 
-
-
 	/**
 	 * list output of all contributions within a chapter sorted manually
 	 *
@@ -50,6 +48,13 @@ class view extends controller
 	function dump_content() 
 	{
 		return ('<pre>'.print_r($this->data,true).'</pre>');
+	}
+
+
+	function texfield() 
+	{
+		$html = $this->data['Textfield'];				// Get the text value of the field "Textfield"
+		return ('<p class="content">'.$html.'</p>');	// Wrap it in a tag and return it.
 	}
 }
 
