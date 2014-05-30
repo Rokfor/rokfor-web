@@ -13,14 +13,7 @@ class controller
 	 * @var object
 	 **/
 	var $rfDB;
-	
-	/**
-	 * utilites
-	 * 
-	 * @var class
-	 */
-	var $u;
-	
+
 	/**
 	 * html code
 	 *
@@ -123,10 +116,10 @@ class controller
 		 * Regular Controller: Load Template based upon the chapter id
 		 */
 	
-		if (file_exists(template_path.'/elements/'.$_GET['element'].'.phtml')) {
+		if (file_exists(template_path.'/element/'.$_GET['element'].'.phtml')) {
 			$this->content('/elements/'.$_GET['element'].'.phtml');						
 		}
-		else if (file_exists(template_path.'/chapters/'.$_GET['chapter'].'.phtml')) {
+		else if (file_exists(template_path.'/chapter/'.$_GET['chapter'].'.phtml')) {
 			$this->content('/chapters/'.$_GET['chapter'].'.phtml');						
 		}
 		else if (file_exists(template_path.'/issue/'.$_GET['issue'].'.phtml')) {
@@ -246,9 +239,16 @@ class controller
 	function _loadData($_element = false){
 		if (!$_element) {
 			if (!$this->element->id) $this->error("Element Id not set");
-			$_element = $this->element->id;
+			$_eid = $this->element->id;
+			$this->data = array();
+			$retval = false;		
 		}
-		foreach ($this->rfDB->getFieldsId($this->element->id) as $_fieldname => $_data) {
+		else {
+			$_eid = $_element;	
+			$retval = array();		
+		}
+
+		foreach ($this->rfDB->getFieldsId($_eid) as $_fieldname => $_data) {
 			switch ($_data->_fieldtype) {
 				case 'Bild':
 					$_parsed_data=$this->rfDB->_splitTableData($_data->d_binary);
@@ -270,8 +270,14 @@ class controller
 					else $_parsed_data = $_data->d_text;
 					break;
 			}
-			$this->data[$_fieldname] = $_parsed_data;
+			if (!$_element) {
+				$this->data[$_fieldname] = $_parsed_data;
+			}
+			else {
+				$retval[$_fieldname] = $_parsed_data;
+			}
 		}
+		return $retval;
 	}	
 	
 
@@ -430,7 +436,7 @@ class controller
 				});
 			</script>');
 		}
-		if ($this->doctype) $this->addHTML('</body></html>');
+
         if ($echo) {
 			echo ($this->html);
 		}

@@ -40,22 +40,100 @@ Templates
 ---------
 
 Templates reside in the templates folder. They are html, and you're totally free in designing whatever you want. The little magic is here:
+Whenever you write a snippet like this, make sure, that the function $dump_content in this example also exists in the view.class.inc file. 
+In the end, make sure, that your template function returns its result as a string. The string will be inserted in the template to make it complete.
 
 ```
 <?=$dump_content?>
 ```
 
-Whenever you write a snippet like this, make sure, that the function $dump_content in this example also exists in the view.class.inc file. When you design a function for a template, there are two main data structures holding the necessary data.
+You can include a template within a template:
+
+```
+<?include('sys/header.phtml')?>
+```
+
+Like this, you can set the same footer for every page in one template.
+
+Data Structures
+---------------
+
+When you design a function for a template, there are two main data structures holding the necessary data.
 
 ```
 $this->tree
 $this->data
 ```
 
-$this->data holds the loaded template. You can create a page with it.
 $this->tree holds the available books, the issues, the chapters and the elements of the current chapter. You can easily create a menu with it.
+$this->data holds the content of the loaded element. You can create a page with it.
 
-In the end, make sure, that your template function returns its result as a string. The string will be inserted in the template to make it complete.
+If you need to know which book, issue, chapter or element is currently active, it's all stored in these structures. You can use these to highlight the selected section in the menu, for example.
+
+```
+$this->book
+$this->issue
+$this->chapter
+$this->element
+```
+
+Loading other than current data
+-------------------------------
+
+If you need other data than the current, for example in your footer, you can overload the active element data with an own id:
+
+```
+$localdata = $this->_loadData($_element);	// Load the content of element with id $_element
+$text = $localdata['Textfield'];			// $text holds now the content of the loaded data
+$current = $this->data['Textfield'];		// $current holds the content of the default data
+
+```
+
+Javascript
+----------
+
+If you need Java Script Code which should be executed, there's the helper function
+
+```
+$this->addDomready($_code) 
+```
+
+The code will be added to a onReady Function at the end of the page. It's wrapped in a mootools-flavoured domready function, but you can change the code in the controller.class.inc file at ease:
+
+``` 
+	function dump($echo = true) 
+	{
+		...
+			$this->addHTML('
+			<script type="text/javascript" charset="utf-8">
+			window.addEvent(\'domready\', function() {
+				'.join("\n",$this->domready).'
+				});
+			</script>
+			');
+		...
+``` 
+
+If you prefer jquery, you can change the code to:
+
+``` 
+	function dump($echo = true) 
+	{
+		...
+			$this->addHTML('
+			<script type="text/javascript" charset="utf-8">
+			$( document ).ready(function() {
+				'.join("\n",$this->domready).'
+				});
+			</script>
+			');
+		...
+``` 
+
+
+Example Function
+----------------
+
 Here's an example for a textfield:
 
 ``` 
