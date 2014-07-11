@@ -112,18 +112,19 @@ class controller
 		/**
 		 * Create output depending on the template
 		 */
+		chdir(template_path);
 	
 		if (file_exists(template_path.'/element/'.$_GET['element'].'.phtml')) {
-			$this->content('/elements/'.$_GET['element'].'.phtml');						
+			$this->content('/element/'.$_GET['element'].'.phtml');						
 		}
 		else if (file_exists(template_path.'/chapter/'.$_GET['chapter'].'.phtml')) {
-			$this->content('/chapters/'.$_GET['chapter'].'.phtml');						
+			$this->content('/chapter/'.$_GET['chapter'].'.phtml');						
 		}
 		else if (file_exists(template_path.'/issue/'.$_GET['issue'].'.phtml')) {
 			$this->content('/issue/'.$_GET['issue'].'.phtml');						
 		}		
 		else if (file_exists(template_path.'/book/'.$_GET['book'].'.phtml')) {
-			$this->content('/issue/'.$_GET['book'].'.phtml');						
+			$this->content('/book/'.$_GET['book'].'.phtml');						
 		}				
 		else {
 			$this->content('default.phtml');			
@@ -188,6 +189,22 @@ class controller
 		if (!$this->book->id) $this->error("Book Id not set");
 		$_newid = false;		
 		$this->tree->chapters = $this->rfDB->getParts($this->book->id, true);
+		$_chap_reord = array();
+		$_chap_reord_byname = array();		
+		foreach ($this->tree->chapters as $_k=>$_e) {
+			$_chap_reord[$_e->id] = $_e;
+			$_chap_reord_byname[$_e->_name] = &$_chap_reord[$_e->id];
+		}
+		$this->tree->chapters 			= $_chap_reord;
+		$this->tree->chapters_by_name 	= $_chap_reord_byname;
+		
+		foreach ($this->tree->chapters as &$_e) {
+			$_e->elements->open = $this->rfDB->getElementsByIssue ($this->issue->id, 'open', false, $_e->id);
+			$_e->elements->close = $this->rfDB->getElementsByIssue ($this->issue->id, 'close', false, $_e->id);
+			$_e->open_elements = count($_e->elements->open);
+			$_e->close_elements = count($_e->elements->close);
+		}
+		
 		foreach ($this->tree->chapters as $_c) {
 			if ($_c->_name==$_chapter) {
 				$this->chapter = $_c; 
@@ -222,7 +239,18 @@ class controller
 		$this->element = $_newid; 		
 	}	
 	
-	
+	/**
+	 * undocumented function
+	 *
+	 * @param string $_status
+	 * @param string $_sorts
+	 * @return void
+	 * @author Urs Hofer
+	 */
+	function _reloadElements($_sort = '__sort__', $_status = 'close')
+	{
+		$this->tree->elements = $this->rfDB->getElementsByIssue ($this->issue->id, $_status	, $_sort, $this->chapter->id);
+	}
 	
 	/**
 	 * loads the data of the current element
@@ -287,10 +315,17 @@ class controller
 	 */
 	function urlencode($string) 
 	{
-	    return urlencode($string);
-	    $entities = array('%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B', '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D');
-	    $replacements = array('!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?", "%", "#", "[", "]");
-	    return str_replace($replacements, $entities,urlencode($string));
+//	 	return rawurlencode($string);
+//	    $replace = array('%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%2B', '%24', '%2C', '%2F', '%3F', '%25', '%23', '%5B', '%5D');
+//	    $search = array('!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "+", "$", ",", "/", "?", "%", "#", "[", "]");
+		$replace = array('%252F');
+		$search = array('%2F');
+	    return str_replace($search, $replace,urlencode($string));
+	}
+
+
+	function wrap($string,$pre,$post,$trim=true) {
+		return ($trim?trim($string):$string)?$pre.$string.$post:'';
 	}
 
 	/**
@@ -312,10 +347,11 @@ class controller
 		
 		// 2. Parse Includes
 
-		preg_match_all('/\<\?include\([\'|"](.*?)[\'|"]\)\?>/', $_source, $_includes);		
+		preg_match_all('/\<\? *include\([\'|"](.*?)[\'|"]\) *\?>/', $_source, $_includes);		
 		foreach (array_unique($_includes[1]) as $_incl) {
+			$_include_path = pathinfo(template_path.'/'.$_file, PATHINFO_DIRNAME);
 			if (!$_include = @file_get_contents(template_path.'/'.$_incl))
-				throw new Exception("Include Template $_file not found", 1);									
+				throw new Exception("Include Template ".$_include_path.'/'.$_incl." not found", 1);									
 			$_tpl = array();
 			preg_match_all('/\<\?=\$(.*?)\?>/', $_include, $_tpl);
 			foreach (array_unique($_tpl[1]) as $_renderer) {
