@@ -125,7 +125,10 @@ class controller
 		}		
 		else if (file_exists(template_path.'/book/'.$_GET['book'].'.phtml')) {
 			$this->content('/book/'.$_GET['book'].'.phtml');						
-		}				
+		}
+		else if (file_exists(template_path.'/template/'.$_GET['template'].'.phtml')) {
+			$this->content('/template/'.$_GET['template'].'.phtml');						
+		}						
 		else {
 			$this->content('default.phtml');			
 		}
@@ -218,6 +221,27 @@ class controller
 	
 	
 	/**
+	 * reloads the chapter data: either by string (chapter name) or integer (id)
+	 *
+	 * @return void
+	 * @author Urs Hofer
+	 */
+	function _reloadChapter($_chapter)
+	{
+		if (is_string($_chapter)) {
+			$_chapter = $this->tree->chapters_by_name[$_chapter]->id;
+		}
+		foreach ($this->tree->chapters as $_c) {
+			if ($_c->id==$_chapter) {
+				$this->chapter = $_c; 
+				return $this->chapter;
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
 	 * checks if an chapter is available and stores the chapter object
 	 *
 	 * @param string $_issue 
@@ -285,6 +309,9 @@ class controller
 				case 'TypologySlider':
 					$_parsed_data=$_data->d_integer;
 					break;		
+				case 'TypologyKeyword':
+					$_parsed_data =	$this->rfDB->_splitWordListData($_data->d_text);
+					break;					
 				default:
 					if (stristr($_data->d_text, '<::::::>')) {
 						$_parsed_data =	$this->rfDB->_splitTextListData($_data->d_text);
@@ -324,8 +351,8 @@ class controller
 	}
 
 
-	function wrap($string,$pre,$post,$trim=true) {
-		return ($trim?trim($string):$string)?$pre.$string.$post:'';
+	function wrap($string,$pre,$post,$trim=true,$alternate=false) {
+		return ($trim?trim($string):$string)?$pre.$string.$post:($alternate?$alternate:'');
 	}
 
 	/**
