@@ -4,6 +4,10 @@ Templates connect the HTML and CSS world to the Rokfor Database. Each time you v
 
 You can store templates by chapter, issue, book or template name. They have to reside in the subfolder ./chapter, ./issue, ./template.
 
+**Experimental: jade Templates**
+
+If you load the view class with jade enabled, templates need the extension .jade. They will be preprocessed by the php jade compiler ```http://github.com/everzet/jade.php``` and then populated with the data and functions provided within the view class.
+
 **Required Templates**
 
 - default.phtml

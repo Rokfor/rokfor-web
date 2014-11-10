@@ -1,13 +1,12 @@
 #rokfor-web
 
-A simple reference implementation of a Rokfor CMS web application.
+A simple reference implementation of a Rokfor CMS web application. It uses jade templates or a custom php template engine to produce the html output.
 
 #Installation
 
 * Prerequisites: A running rokfor installation. Check it out here: <a href="/Rokfor/rokfor-cms">Rokfor-cms</a>
 * Clone the repository in the document root
 * Make sure to include the configuration file (rf_config-v2.inc in index.php)
-* If you don't change anything, the default paths should work.
 
 #How-To
 
