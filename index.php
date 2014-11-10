@@ -3,8 +3,9 @@
 	 * Initialize Session
 	 */
 
-	ini_set('display_errors','Off');
-
+	//	ini_set('display_errors','Off');
+	error_reporting(E_ALL & ~E_NOTICE);
+		
 	/**
 	 * Include Libraries
 	 */
@@ -14,9 +15,10 @@
 
 	/**
 	 * Load Main Class
+	 * Passing a boolean value switches the Jade Preprocessor on or off
 	 */
 
-	$s = new view();
+	$s = new view(true);
 
 	/**
 	 * Dump HTML

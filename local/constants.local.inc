@@ -1,4 +1,5 @@
 <?php
+if(!defined('ROK')) die('Direct access is not allowed');
 
 /**
  * constants: defining global constants used for all projects

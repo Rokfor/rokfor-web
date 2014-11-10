@@ -6,14 +6,14 @@ A simple reference implementation of a Rokfor CMS web application.
 
 * Prerequisites: A running rokfor installation. Check it out here: <a href="/Rokfor/rokfor-cms">Rokfor-cms</a>
 * Clone the repository in the document root
-* Make sure, that the path to the Rokfor Configuration exists (rf_config-v2.inc in index.php)
+* Make sure to include the configuration file (rf_config-v2.inc in index.php)
 * If you don't change anything, the default paths should work.
 
 #How-To
 
 ##Parameters
 
-This repository is a simple template engine. It accepts four GET parameters. In the constructor of controller.class.inc you see:
+The Rokfor Structure is based on the idea of a book. A book is a top level project which can be multiplied in Issues. Each book consists of chapters. In each chapter, there can elements. A element is a collection of data structures.
 
 ```
 $this->_checkBook($_GET['book']);

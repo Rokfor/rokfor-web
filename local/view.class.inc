@@ -1,4 +1,5 @@
 <?php
+if(!defined('ROK')) die('Direct access is not allowed');
 
 
 /**
@@ -24,9 +25,8 @@ class view extends controller
 	 * @return void
 	 * @author Urs Hofer
 	 **/
-	function __construct() {
-		parent::__construct(); 
-
+	function __construct($jade = false) {
+		parent::__construct($jade); 
 	}
 
 	/**
@@ -36,7 +36,7 @@ class view extends controller
 	 * @author Urs Hofer
 	 */
 	function dump_menu() {
-		return ('<pre>'.print_r($this->tree,true).'</pre>');
+		return (print_r($this->tree,true));
 	}
 
 	/**
@@ -47,14 +47,14 @@ class view extends controller
 	 */
 	function dump_content() 
 	{
-		return ('<pre>'.print_r($this->data,true).'</pre>');
+		return (print_r($this->data,true));
 	}
+	
 
 
 	function texfield() 
 	{
-		$html = $this->data['Textfield'];				// Get the text value of the field "Textfield"
-		return ('<p class="content">'.$html.'</p>');	// Wrap it in a tag and return it.
+		return ($this->data['Textfield']);	// Wrap it in a tag and return it.
 	}
 }
 

@@ -1,5 +1,5 @@
 <?php
-
+if(!defined('ROK')) die('Direct access is not allowed');
 
 /**
 * controller main class
@@ -511,7 +511,7 @@ class controller
 	 * @return int
 	 * @author Urs Hofer
 	 **/
-	function getRendertime() 
+	function rendertime() 
 	{
 		echo (round(microtime(true) - $this->time,4). " s.");
 	}
