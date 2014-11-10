@@ -1,0 +1,21 @@
+!!! 5
+html(lang="en-us")
+  meta(charset="utf-8")
+  meta(http-equiv="X-UA-Compatible", content="IE=Edge;chrome=1")
+  title(dir="ltr")=$pageTitle
+  meta(name="viewport", content="width=device-width, initial-scale=1.0")
+  link(rel="stylesheet", media="screen", href="/css/styles.css")
+  body
+  header
+  h1 My Jade Application
+  div#content
+  div.inner
+    =$this->dump_content()
+
+  div#content
+  div.inner
+    =$this->dump_menu()
+
+  div#content
+  div.inner
+    =$this->texfield()
