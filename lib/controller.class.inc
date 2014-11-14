@@ -527,11 +527,11 @@ class controller
 	 **/
 	function content($_file)
 	{
-//		try {
+		try {
 			$this->__render($_file);
-//		} catch (Exception $e) {
-//			$this->error($e->getMessage());
-//		}
+		} catch (Exception $e) {
+			$this->error($e->getMessage());
+		}
 	}
 
 	/**
