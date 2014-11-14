@@ -1,6 +1,7 @@
 <?php
 if(!defined('ROK')) die('Direct access is not allowed');
 
+
 /**
 * controller main class
 */
@@ -73,6 +74,27 @@ class controller
 	 * @var string
 	 **/
 	var $tree;
+	
+	/**
+	 * use jade or not
+	 *
+	 * @var string
+	 */
+	var $usejade;
+	
+	/**
+	 * jade class
+	 *
+	 * @var string
+	 */
+	var $jade;
+	
+	/**
+	 * template extension, depending
+	 *
+	 * @var string
+	 */
+	var $extension;
 
 	/**
 	 * constructor
@@ -91,7 +113,7 @@ class controller
 	 * @return void
 	 * @author Urs Hofer
 	 **/
-	function __construct()
+	function __construct($j = false)
 	{
 		mb_internal_encoding("UTF-8");
 		$this->time = microtime(true);
@@ -99,6 +121,7 @@ class controller
 		$this->domready = array();
 		require_once(SYSDIR.'/rokfor_DB.inc');
 		$this->rfDB = new rokfor_DB();
+		$this->usejade = $j;
 
 		/* Load Default Selections */
 		
@@ -107,30 +130,46 @@ class controller
 		$this->_checkChapter($_GET['chapter']);		
 		$this->_checkElement($_GET['element']);		
 		$this->_loadData();
+		
 
+		/* Init Jade if set */
+
+	    if ($this->usejade === true) {
+			spl_autoload_register(function($class) {
+	        	if(!strstr($class, 'Jade'))
+					return;
+				include_once(dirname(__FILE__).'/../lib/'. str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php');
+			});		
+			$this->jade = new Jade\Jade(true);
+			$this->extension = ".jade";
+		}
+		else {
+			$this->jade = null;
+			$this->extension = ".phtml";
+		}
 
 		/**
 		 * Create output depending on the template
 		 */
 		chdir(template_path);
 	
-		if (file_exists(template_path.'/element/'.$_GET['element'].'.phtml')) {
-			$this->content('/element/'.$_GET['element'].'.phtml');						
+		if (file_exists(template_path.'/element/'.$_GET['element'].$this->extension)) {
+			$this->content('/element/'.$_GET['element'].$this->extension);						
 		}
-		else if (file_exists(template_path.'/chapter/'.$_GET['chapter'].'.phtml')) {
-			$this->content('/chapter/'.$_GET['chapter'].'.phtml');						
+		else if (file_exists(template_path.'/chapter/'.$_GET['chapter'].$this->extension)) {
+			$this->content('/chapter/'.$_GET['chapter'].$this->extension);						
 		}
-		else if (file_exists(template_path.'/issue/'.$_GET['issue'].'.phtml')) {
-			$this->content('/issue/'.$_GET['issue'].'.phtml');						
+		else if (file_exists(template_path.'/issue/'.$_GET['issue'].$this->extension)) {
+			$this->content('/issue/'.$_GET['issue'].$this->extension);						
 		}		
-		else if (file_exists(template_path.'/book/'.$_GET['book'].'.phtml')) {
-			$this->content('/book/'.$_GET['book'].'.phtml');						
+		else if (file_exists(template_path.'/book/'.$_GET['book'].$this->extension)) {
+			$this->content('/book/'.$_GET['book'].$this->extension);						
 		}
-		else if (file_exists(template_path.'/template/'.$_GET['template'].'.phtml')) {
-			$this->content('/template/'.$_GET['template'].'.phtml');						
+		else if (file_exists(template_path.'/template/'.$_GET['template'].$this->extension)) {
+			$this->content('/template/'.$_GET['template'].$this->extension);						
 		}						
 		else {
-			$this->content('default.phtml');			
+			$this->content('default'.$this->extension);			
 		}
 	}
 	
@@ -367,46 +406,90 @@ class controller
 	 */
 	private function __render($_file)
 	{
-		// 1. Get all required fields out of the template
-		$_renderers = array();
-		if (!$_source = @file_get_contents(template_path.'/'.$_file))
-			throw new Exception("Template $_file not found", 1);
-		
-		// 2. Parse Includes
+		if ($this->usejade === true) {
 
-		preg_match_all('/\<\? *include\([\'|"](.*?)[\'|"]\) *\?>/', $_source, $_includes);		
-		foreach (array_unique($_includes[1]) as $_incl) {
-			$_include_path = pathinfo(template_path.'/'.$_file, PATHINFO_DIRNAME);
-			if (!$_include = @file_get_contents(template_path.'/'.$_incl))
-				throw new Exception("Include Template ".$_include_path.'/'.$_incl." not found", 1);									
-			$_tpl = array();
-			preg_match_all('/\<\?=\$(.*?)\?>/', $_include, $_tpl);
+			  $templates = template_path;
+			  // Closure to recursively get the modification time from jade templates and
+			  // their super templates (determeined by pre-parsing 'extends' statements).
+			  $getChangeTime = function($_file, $time) use (&$getChangeTime, $templates) {
+			    $file = $templates."/$_file";
+			    $t = @filectime($file);
+			    if ($t === false)
+			      die("Can't open jade file '$file'");
+			    if ($t > $time)
+			      $time = $t;
+			    $fp = fopen($file, 'r');
+			    // Find all the lines of the template that contains an valid statements,
+			    // and see there are any 'extends' or 'include' statements to determine
+			    // dependencies.
+			    while (true) {
+			      $line = fgets($fp);
+			      if ($line === false)
+			        break;
+			      $line = trim($line);
+			      if (!$line || !strncmp($line, '//', 2))
+			        continue;
+			      if (!strncmp($line, 'extends ', 8) || !strncmp($line, 'include ', 8))
+			        $time = $getChangeTime(substr($line, 8), $time);
+			    }
+			    fclose($fp);
+			    return $time;
+			  };
+			  $time = $getChangeTime($_file, 0);
+
+			  $cache = template_path . "/cache/$_file.phtml";
+			  $t = @filectime($cache);
+			  // Now get the modification time from the cached file, and regenerate if
+			  // the jade template or any of its dependencies have changed.
+			  if ($t === false || $t < $time)
+			    file_put_contents($cache, $this->jade->render("$templates/$_file", $this));
+			  
+			  $_file = "cache/$_file.phtml";
+		}
+		else {
+		
+			// 1. Get all required fields out of the template
+			$_renderers = array();
+			if (!$_source = @file_get_contents(template_path.'/'.$_file))
+				throw new Exception("Template $_file not found", 1);
+	
+			// 2. Parse Includes
+
+			preg_match_all('/\<\? *include\([\'|"](.*?)[\'|"]\) *\?>/', $_source, $_includes);		
+			foreach (array_unique($_includes[1]) as $_incl) {
+				$_include_path = pathinfo(template_path.'/'.$_file, PATHINFO_DIRNAME);
+				if (!$_include = @file_get_contents(template_path.'/'.$_incl))
+					throw new Exception("Include Template ".$_include_path.'/'.$_incl." not found", 1);									
+				$_tpl = array();
+				preg_match_all('/\<\?=\$(.*?)\?>/', $_include, $_tpl);
+				foreach (array_unique($_tpl[1]) as $_renderer) {
+					$_renderers[] = $_renderer;
+				}
+			}		
+
+			$_tpl = array();		
+			preg_match_all('/\<\?=\$(.*?)\?>/', $_source, $_tpl);
 			foreach (array_unique($_tpl[1]) as $_renderer) {
 				$_renderers[] = $_renderer;
 			}
-		}		
-
-		$_tpl = array();		
-		preg_match_all('/\<\?=\$(.*?)\?>/', $_source, $_tpl);
-		foreach (array_unique($_tpl[1]) as $_renderer) {
-			$_renderers[] = $_renderer;
-		}
-		
-		
-		foreach ($_renderers as $_renderer) {
-			if (method_exists($this, $_renderer)) {
-				try {
-					$$_renderer = $this->$_renderer();
-				} catch (Exception $e) {
-					$this->error($e->getMessage());
+	
+	
+			foreach ($_renderers as $_renderer) {
+				if (method_exists($this, $_renderer)) {
+					try {
+						$$_renderer = $this->$_renderer();
+					} catch (Exception $e) {
+						$this->error($e->getMessage());
+					}
 				}
+				else $$_renderer = view_missing.":".$_renderer;
 			}
-			else $$_renderer = view_missing.":".$_renderer;
 		}
-
+		
 		ob_start();
     	require template_path.'/'.$_file;
 		$this->addHTML(ob_get_clean());	
+
 	}
 
 	/**
@@ -444,11 +527,11 @@ class controller
 	 **/
 	function content($_file)
 	{
-		try {
+//		try {
 			$this->__render($_file);
-		} catch (Exception $e) {
-			$this->error($e->getMessage());
-		}
+//		} catch (Exception $e) {
+//			$this->error($e->getMessage());
+//		}
 	}
 
 	/**

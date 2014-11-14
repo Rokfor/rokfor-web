@@ -3,9 +3,9 @@
 	 * Initialize Session
 	 */
 
-	//	ini_set('display_errors','Off');
+//	ini_set('display_errors','Off');
 	error_reporting(E_ALL & ~E_NOTICE);
-		
+
 	/**
 	 * Include Libraries
 	 */
@@ -26,9 +26,4 @@
 
 	$s->dump();
 
-	/**
-	 * Print Render Time
-	 */
-	
-	$s->rendertime(); 
 ?>

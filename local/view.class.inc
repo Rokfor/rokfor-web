@@ -1,7 +1,6 @@
 <?php
 if(!defined('ROK')) die('Direct access is not allowed');
 
-
 /**
 * View class: providing the data renderer for each field required in a template
 * 
@@ -36,7 +35,7 @@ class view extends controller
 	 * @author Urs Hofer
 	 */
 	function dump_menu() {
-		return (print_r($this->tree,true));
+		return ('<p>This data structure is holding the document tree:</p><pre>'.print_r($this->tree,true).'</pre>');
 	}
 
 	/**
@@ -47,14 +46,19 @@ class view extends controller
 	 */
 	function dump_content() 
 	{
-		return (print_r($this->data,true));
+		return ('<p>This data structure is holding the current document:</p><pre>'.print_r($this->data,true).'</pre>');
 	}
 	
+	function bodyContent() {
+		$a = 0;
+		return "<p>You can return whatever you want...: " . ($a++);
+	}
 
 
 	function texfield() 
 	{
-		return ($this->data['Textfield']);	// Wrap it in a tag and return it.
+		$html = $this->data['Textfield'];				// Get the text value of the field "Textfield"
+		return ('<p class="content">'.$html.'</p>');	// Wrap it in a tag and return it.
 	}
 }
 
