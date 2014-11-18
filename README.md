@@ -22,13 +22,20 @@ $this->_checkElement($_GET['element']);
 ```
 
 If these parameters are omitted, the first available will be set as default.
-You can send these parameters when creating a menufunction, or pretty print them with an .htaccess file
+You can send these parameters when creating a menufunction, or pretty print them with an .htaccess file.
+Here is an example of rewriting the first two parameters to chapter and element.
+You probably want to pass book and issue as well if you have a bigger project.
 
 ```
-RewriteRule ^(.*)$ 					/index.php?book=$1 [L]
-RewriteRule ^(.*)/(.*)$ 			/index.php?book=$1&issue=$2 [L]
-RewriteRule ^(.*)/(.*)/(.*)$ 		/index.php?book=$1&issue=$2&chapter=$3 [L]
-RewriteRule ^(.*)/(.*)/(.*)/(.*)$ 	/index.php?book=$1&issue=$2&chapter=$3&element=$4 [L]
+RewriteCond %{ENV:REDIRECT_STATUS} 	=200           [OR]
+RewriteCond %{REQUEST_URI} 		    ^.*/assets/.*$ [OR]
+RewriteCond %{REQUEST_URI} 		    ^.*/other_directory_to_exclude/.*$
+
+RewriteRule .* - [S=2]	            # Number of Rules to skip if the conditions above match. 
+                                    # Here we skip two rules.
+									
+RewriteRule ^(.*)/(.*)$             /index.php?chapter=$1&element=$2 [L]
+RewriteRule ^(.*)$                  /index.php?chapter=$1 [L]
 ```
 
 ##Templates
