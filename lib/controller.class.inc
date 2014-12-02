@@ -152,20 +152,26 @@ class controller
 		 * Create output depending on the template
 		 */
 		chdir(template_path);
+		$this->subpath = '';
 	
 		if (file_exists(template_path.'/element/'.$_GET['element'].$this->extension)) {
+			$this->subpath = '/element';
 			$this->content('/element/'.$_GET['element'].$this->extension);						
 		}
 		else if (file_exists(template_path.'/chapter/'.$_GET['chapter'].$this->extension)) {
+			$this->subpath = '/chapter';
 			$this->content('/chapter/'.$_GET['chapter'].$this->extension);						
 		}
 		else if (file_exists(template_path.'/issue/'.$_GET['issue'].$this->extension)) {
+			$this->subpath = '/issue';
 			$this->content('/issue/'.$_GET['issue'].$this->extension);						
 		}		
 		else if (file_exists(template_path.'/book/'.$_GET['book'].$this->extension)) {
+			$this->subpath = '/book';
 			$this->content('/book/'.$_GET['book'].$this->extension);						
 		}
 		else if (file_exists(template_path.'/template/'.$_GET['template'].$this->extension)) {
+			$this->subpath = '/template';
 			$this->content('/template/'.$_GET['template'].$this->extension);						
 		}						
 		else {
@@ -408,11 +414,12 @@ class controller
 	{
 		if ($this->usejade === true) {
 
-			  $templates = template_path;
+			  $templates = template_path . $this->subpath . '/';
+
 			  // Closure to recursively get the modification time from jade templates and
 			  // their super templates (determeined by pre-parsing 'extends' statements).
 			  $getChangeTime = function($_file, $time) use (&$getChangeTime, $templates) {
-			    $file = $templates."/$_file";
+			    $file = $_file;
 			    $t = @filectime($file);
 			    if ($t === false)
 			      die("Can't open jade file '$file'");
@@ -430,21 +437,21 @@ class controller
 			      if (!$line || !strncmp($line, '//', 2))
 			        continue;
 			      if (!strncmp($line, 'extends ', 8) || !strncmp($line, 'include ', 8))
-			        $time = $getChangeTime(substr($line, 8), $time);
+			        $time = $getChangeTime($templates . substr($line, 8), $time);
 			    }
 			    fclose($fp);
 			    return $time;
 			  };
-			  $time = $getChangeTime($_file, 0);
+			  $time = $getChangeTime(template_path . '/' . $_file, 0);
 
-			  $cache = template_path . "/cache/$_file.phtml";
+			  $cache = template_path . "/cache/".md5($_file).".phtml";
 			  $t = @filectime($cache);
 			  // Now get the modification time from the cached file, and regenerate if
 			  // the jade template or any of its dependencies have changed.
 			  if ($t === false || $t < $time)
-			    file_put_contents($cache, $this->jade->render("$templates/$_file", $this));
+			    file_put_contents($cache, $this->jade->render(template_path . '/' . $_file, $this));
 			  
-			  $_file = "cache/$_file.phtml";
+			  $_file = "cache/".md5($_file).".phtml";
 		}
 		else {
 		
