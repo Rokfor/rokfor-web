@@ -154,21 +154,21 @@ class controller
 		chdir(template_path);
 		$this->subpath = '';
 	
-		if (file_exists(template_path.'/element/'.$_GET['element'].$this->extension)) {
+		if (file_exists(template_path.'/element/'.$this->element->_name.$this->extension)) {
 			$this->subpath = '/element';
-			$this->content('/element/'.$_GET['element'].$this->extension);						
+			$this->content('/element/'.$this->element->_name.$this->extension);						
 		}
-		else if (file_exists(template_path.'/chapter/'.$_GET['chapter'].$this->extension)) {
+		else if (file_exists(template_path.'/chapter/'.$this->chapter->_name.$this->extension)) {
 			$this->subpath = '/chapter';
-			$this->content('/chapter/'.$_GET['chapter'].$this->extension);						
+			$this->content('/chapter/'.$this->chapter->_name.$this->extension);						
 		}
-		else if (file_exists(template_path.'/issue/'.$_GET['issue'].$this->extension)) {
+		else if (file_exists(template_path.'/issue/'.$this->issue->_name.$this->extension)) {
 			$this->subpath = '/issue';
-			$this->content('/issue/'.$_GET['issue'].$this->extension);						
+			$this->content('/issue/'.$this->issue->_name.$this->extension);						
 		}		
-		else if (file_exists(template_path.'/book/'.$_GET['book'].$this->extension)) {
+		else if (file_exists(template_path.'/book/'.$this->book->_name.$this->extension)) {
 			$this->subpath = '/book';
-			$this->content('/book/'.$_GET['book'].$this->extension);						
+			$this->content('/book/'.$this->book->_name.$this->extension);						
 		}
 		else if (file_exists(template_path.'/template/'.$_GET['template'].$this->extension)) {
 			$this->subpath = '/template';
