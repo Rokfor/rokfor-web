@@ -210,7 +210,7 @@ class controller
 	 * @return void
 	 * @author Urs Hofer
 	 */
-	function _checkIssue($_issue){
+	function _checkIssue($_issue = false){
 		if (!$this->book->id) $this->error("Book Id not set");
 		$_newid = false;		
 		$this->tree->issues = $this->rfDB->getEditions ($this->book->id, true);
